@@ -1,0 +1,67 @@
+SQL Queries
+
+1. Data Cleaning
+SELECT 
+    COUNT(*) AS total_rows,
+    COUNT(DISTINCT "Order Id") AS unique_orders,
+    SUM(CASE WHEN "Order Item Total" <= 0 THEN 1 ELSE 0 END) AS price_errors,
+    SUM(CASE WHEN "Days for shipping (real)" > 10 THEN 1 ELSE 0 END) AS extreme_delays
+FROM supply_chain;
+
+2. SLA Analysis
+SELECT 
+    "Shipping Mode",
+    COUNT(*) AS order_volume,
+    -- Strict: Arrived on/before the exact promised date
+    ROUND(AVG(CASE WHEN "Days for shipping (real)" <= "Days for shipment (scheduled)" THEN 1.0 ELSE 0.0 END) * 100, 2) AS strict_success_rate,
+    -- Buffered: Arrived within 1 day of the promise
+    ROUND(AVG(CASE WHEN "Days for shipping (real)" <= ("Days for shipment (scheduled)" + 1) THEN 1.0 ELSE 0.0 END) * 100, 2) AS buffered_success_rate
+FROM supply_chain
+GROUP BY 1
+ORDER BY order_volume DESC;
+
+3. Funnel Analysis
+SELECT 
+    "Shipping Mode",
+    AVG("Days for shipment (scheduled)") AS promised_days,
+    AVG("Days for shipping (real)") AS actual_days,
+    -- Latency Gap: Average delay per order in days.
+    ROUND(AVG("Days for shipping (real)" - "Days for shipment (scheduled)"), 2) AS avg_latency_gap
+FROM supply_chain
+GROUP BY 1
+ORDER BY avg_latency_gap DESC;
+
+4. Customer Segmentation
+query_segmentation = """
+WITH UserValue AS (
+    SELECT 
+        "Customer Id",
+        SUM("Order Item Total") AS total_spent,
+        AVG(Late_delivery_risk) AS delay_rate
+    FROM supply_chain
+    GROUP BY 1
+)
+SELECT 
+    CASE 
+        WHEN total_spent > 500 THEN 'Priority (High Spend)'
+        WHEN total_spent BETWEEN 200 AND 500 THEN 'Standard (Mid Spend)'
+        ELSE 'Casual (Low Spend)'
+    END AS customer_segment,
+    COUNT(*) AS user_count,
+    ROUND(AVG(delay_rate) * 100, 2) AS avg_failure_pct
+FROM UserValue
+GROUP BY 1
+ORDER BY avg_failure_pct DESC;
+
+5. A/B Test
+query_ab_test = """
+SELECT 
+    CASE WHEN ("Order Id" % 2 = 0) THEN 'Control (1-Day Promise)' ELSE 'Variant (4-Day Estimate)' END AS test_group,
+    ROUND(AVG(CASE 
+        WHEN ("Order Id" % 2 != 0 AND "Days for shipping (real)" <= 4) THEN 1.0 
+        WHEN ("Order Id" % 2 = 0 AND "Days for shipping (real)" <= "Days for shipment (scheduled)") THEN 1.0
+        ELSE 0.0 
+    END) * 100, 2) AS fulfillment_success_rate
+FROM supply_chain
+WHERE "Shipping Mode" = 'First Class'
+GROUP BY 1;
