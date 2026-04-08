@@ -1,7 +1,7 @@
 # Operational Bottleneck Analysis: Global Supply Chain Audit
 > **An End-to-End Case Study in Logistics Integrity & Fulfillment Recovery**
 
-[View Notebook](supply-chain-audit.ipynb) | [SQL Queries]("SQL Queries.txt") | [Data Source](https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis)
+[View Notebook](supply-chain-audit.ipynb) | [SQL Queries](SQL Queries.txt) | [Data Source](https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis)
 
 ---
 
