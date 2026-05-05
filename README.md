@@ -92,6 +92,34 @@ Modeled a rule-based simulation comparing:
 
 ---
 
+---
+
+## PySpark Extension (`sla_pyspark.py`)
+The core 5-stage analytical framework was extended to PySpark to validate 
+scalability beyond a single-machine Pandas environment. The same logic — 
+integrity audit, SLA benchmarking, latency gap analysis, segmentation, and 
+A/B test — was rewritten using Spark DataFrames and distributed execution.
+
+**Why PySpark:**
+The original Pandas pipeline processes 180K records efficiently on a single 
+machine. At enterprise scale (180M+ records across multiple regions), Spark 
+distributes the workload across a cluster — same logic, no memory bottleneck.
+
+**Key outputs verified on 180,519 records:**
+| Stage | Finding |
+| :--- | :--- |
+| Integrity Audit | 0 pricing anomalies, 0 extreme delays |
+| SLA Performance | First Class: 0% strict, 100% buffered — systematic 1-day misconfiguration |
+| Latency Gap | Second Class: consistent 2-day gap. Standard Class: perfect (0.0) |
+| Segmentation | Uniform ~55% failure rate across all spend tiers — systemic not selective |
+| A/B Test | Control: 0% success. Variant: 100% success. The network wasn't broken. The promises were. |
+
+**To run:**
+```bash
+pip install pyspark
+python sla_pyspark.py
+```
+
 ## How to Run
 ```bash
 # 1. Clone the repository
