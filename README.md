@@ -1,12 +1,21 @@
 # Operational Bottleneck Analysis: Global Supply Chain Audit
 > **An End-to-End Case Study in Logistics Integrity & Fulfillment Recovery**
 
-[View Notebook](supply-chain-audit.ipynb) | [SQL Queries](SQL-Queries.txt) | [Data Source](https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis)
+[View Notebook](supply-chain-audit.ipynb) | [SQL Queries](SQL-Queries.txt) | [PySpark Extension](sla_pyspark.py) | [Data Source](https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis)
 
 ---
 
 ## Executive Summary
 Premium shipping tiers exhibit a ~95% SLA breach rate, driven by a consistent ~2-day fulfillment delay. This analysis demonstrates that by aligning delivery expectations with actual logistics velocity via a Dynamic Delivery Estimate (DDE), the company can restore fulfillment success to 100% without increasing operational overhead.
+
+---
+
+## Stack
+| Layer | Tools |
+| :--- | :--- |
+| Data Cleaning & Analysis | Python (Pandas, NumPy), SQL (SQLite) |
+| Distributed Processing | PySpark |
+| Cloud Data Warehouse | Snowflake |
 
 ---
 
@@ -46,6 +55,8 @@ Before analysis, a Data Validation Layer was implemented to ensure mathematical 
 ## Toolset & Application
 * **Python (Pandas, NumPy):** Used for vectorized data cleaning, preprocessing, and rule-based simulation.
 * **SQL (SQLite):** Leveraged CTEs (Common Table Expressions) and complex joins for multi-tier customer segmentation.
+* **PySpark:** Extended the pipeline for distributed processing at enterprise scale.
+* **Snowflake:** Cloud data warehouse layer for validating outputs and enabling SQL-based querying at scale.
 * **Analytical Framework:** Quantified "Time Leakage" within the fulfillment funnel to identify the 2.01-day bottleneck.
 
 ---
@@ -64,14 +75,45 @@ Modeled delivery as a funnel to quantify delay:
 * **Insight:** A consistent ~2.01-day delay suggested a systemic bottleneck rather than random variation.
 
 ### Stage 4: Customer Segmentation (Value at Risk)
-Linked failures to customer spending tiers using SQL. 
-* **Result:** High-value customers experienced the same 95% delay rate as standard users, identifying a major churn risk.
+Linked failures to customer spending tiers using SQL.
+* **Result:** High-value customers experienced the same ~55% delay rate as standard users — confirming the problem is systemic, not selective.
 
 ### Stage 5: A/B Test Simulation (Success Recovery)
 Modeled a rule-based simulation comparing:
-* **Control:** 1-day promise.
-* **Variant:** 4-day realistic estimate (Dynamic Delivery Estimate).
-* **Result:** Fulfillment success recovered from ~5% to 100% by managing expectations.
+* **Control:** 1-day promise → 0% success.
+* **Variant:** 4-day realistic estimate (Dynamic Delivery Estimate) → 100% success.
+* **The network wasn't broken. The promises were.**
+
+---
+
+## PySpark Extension (`sla_pyspark.py`)
+The core 5-stage analytical framework was extended to PySpark to validate scalability beyond a single-machine Pandas environment. The same logic was rewritten using Spark DataFrames and distributed execution.
+
+**Why PySpark:**
+The original Pandas pipeline processes 180K records efficiently on a single machine. At enterprise scale (180M+ records across multiple regions), Spark distributes the workload across a cluster — same logic, no memory bottleneck.
+
+| Stage | PySpark Finding |
+| :--- | :--- |
+| Integrity Audit | 0 pricing anomalies, 0 extreme delays |
+| SLA Performance | First Class: 0% strict, 100% buffered — systematic 1-day misconfiguration |
+| Latency Gap | Second Class: consistent 2-day gap. Standard Class: perfect (0.0) |
+| Segmentation | Uniform ~55% failure rate across all spend tiers — systemic not selective |
+| A/B Test | Control: 0% → Variant: 100%. The network wasn't broken. The promises were. |
+
+---
+
+## Snowflake Validation
+All 5 stages were validated in Snowflake as a cloud data warehouse layer, confirming results are consistent across Pandas, PySpark, and Snowflake SQL.
+
+| Stage | Snowflake Result |
+| :--- | :--- |
+| Integrity Audit | 180,519 rows, 0 anomalies, 0 extreme delays |
+| SLA Performance | First Class: 0% strict, 100% buffered |
+| Latency Gap | Second Class: +1.99 days, Standard Class: 0.0 |
+| Segmentation | Uniform ~54% failure across all spend tiers |
+| A/B Test | Control: 0% → Variant: 100% |
+
+> Database: SUPPLY_CHAIN_DB | Schema: PUBLIC | Table: SUPPLY_CHAIN | Records: 180,519
 
 ---
 
@@ -92,41 +134,18 @@ Modeled a rule-based simulation comparing:
 
 ---
 
----
-
-## PySpark Extension (`sla_pyspark.py`)
-The core 5-stage analytical framework was extended to PySpark to validate 
-scalability beyond a single-machine Pandas environment. The same logic — 
-integrity audit, SLA benchmarking, latency gap analysis, segmentation, and 
-A/B test — was rewritten using Spark DataFrames and distributed execution.
-
-**Why PySpark:**
-The original Pandas pipeline processes 180K records efficiently on a single 
-machine. At enterprise scale (180M+ records across multiple regions), Spark 
-distributes the workload across a cluster — same logic, no memory bottleneck.
-
-**Key outputs verified on 180,519 records:**
-| Stage | Finding |
-| :--- | :--- |
-| Integrity Audit | 0 pricing anomalies, 0 extreme delays |
-| SLA Performance | First Class: 0% strict, 100% buffered — systematic 1-day misconfiguration |
-| Latency Gap | Second Class: consistent 2-day gap. Standard Class: perfect (0.0) |
-| Segmentation | Uniform ~55% failure rate across all spend tiers — systemic not selective |
-| A/B Test | Control: 0% success. Variant: 100% success. The network wasn't broken. The promises were. |
-
-**To run:**
-```bash
-pip install pyspark
-python sla_pyspark.py
-```
-
 ## How to Run
 ```bash
 # 1. Clone the repository
-git clone [https://github.com/your-username/Supply-Chain-Audit.git](https://github.com/your-username/Supply-Chain-Audit.git)
+git clone https://github.com/your-username/Supply-Chain-Audit.git
 
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Launch the audit
+# 3. Launch the original analysis
 jupyter notebook
+
+# 4. Run PySpark extension
+pip install pyspark
+python sla_pyspark.py
+```
