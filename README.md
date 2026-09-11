@@ -15,14 +15,14 @@
 | Records audited | 180,519 orders |
 | First Class SLA breach rate | ~95% (strict) |
 | Systemic latency gap (First/Second Class) | ~2 days |
-| Simulated recovery (realistic estimate) | 0% → 100% success |
+| Simulated recovery (realistic estimate) | 0% → 100% success (First Class, p < 0.001) |
 | Failure rate across customer spend tiers | ~55% uniform (systemic, not selective) |
 | Validated across | Pandas/SQLite, PySpark, Snowflake |
 
 ---
 
 ## Executive Summary
-Premium shipping tiers exhibit a ~95% SLA breach rate, driven by a consistent ~2-day fulfillment delay. This analysis demonstrates that by aligning delivery expectations with actual logistics velocity via a Dynamic Delivery Estimate (DDE), the company can restore fulfillment success to 100% without increasing operational overhead.
+Premium shipping tiers exhibit a ~95% SLA breach rate, driven by a consistent ~2-day fulfillment delay. This analysis demonstrates that by aligning delivery expectations with actual logistics velocity via a Dynamic Delivery Estimate (DDE), fulfillment success can be statistically significantly improved for three of four shipping tiers (p < 0.001) without increasing operational overhead — Standard Class is already well-calibrated and needs no change.
 
 ---
 
@@ -46,7 +46,8 @@ Supply-Chain-Audit/
 │   ├── supply-chain-audit.ipynb   # Pandas + SQLite, the 5-stage framework
 │   └── sla_pyspark.ipynb          # PySpark extension for scale
 ├── python/
-│   └── prepare_dashboard_data.py  # regenerates data/processed/ and sql/exports/
+│   ├── prepare_dashboard_data.py  # regenerates data/processed/ and sql/exports/
+│   └── ab_test_simulation.py      # A/B test framework with two-proportion z-test
 ├── sql/
 │   ├── 01_data_integrity_audit.sql
 │   ├── 02_sla_performance_by_shipping_mode.sql
@@ -125,10 +126,16 @@ Linked failures to customer spending tiers using SQL.
 * **Result:** High-value customers experienced the same ~55% delay rate as standard users — confirming the problem is systemic, not selective.
 
 ### Stage 5: A/B Test Simulation (Success Recovery)
-Modeled a rule-based simulation comparing:
-* **Control:** 1-day promise → 0% success.
-* **Variant:** 4-day realistic estimate (Dynamic Delivery Estimate) → 100% success.
-* **The network wasn't broken. The promises were.**
+`python/ab_test_simulation.py` generalizes the original single-mode query into a reusable framework: for every shipping mode, it splits orders into a **control** group (kept at the current promised window) and a **variant** group (given a realistic estimate — the ceiling of that mode's actual average delivery time), then runs a **two-proportion z-test** to check whether the difference is statistically significant rather than just eyeballing raw rates.
+
+| Shipping Mode | Control (promise) | Control Success | Variant (realistic) | Variant Success | p-value | Significant? |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **First Class** | 1 day | 0.0% | 2 days | 100.0% | < 0.001 | ✅ |
+| **Same Day** | 0 days | 51.9% | 1 day | 100.0% | < 0.001 | ✅ |
+| **Second Class** | 2 days | 20.4% | 4 days | 59.9% | < 0.001 | ✅ |
+| **Standard Class** | 4 days | 60.2% | 4 days | 60.2% | 0.951 | ❌ |
+
+Standard Class shows **no statistically significant difference** — it's already well-calibrated and doesn't need fixing. The other three tiers show highly significant recovery potential. This is a stronger, more defensible finding than a single raw-percentage comparison: **the fix should target three specific tiers, not the whole network.**
 
 ---
 
@@ -166,8 +173,8 @@ All 5 stages were validated in Snowflake as a cloud data warehouse layer, confir
 ## Key Recommendations
 
 ### Short-Term (Customer Experience)
-* Update checkout UI to reflect realistic delivery windows (e.g., 4-day estimate).
-* Align customer expectations with actual fulfillment capabilities immediately to halt churn.
+* Update checkout UI to reflect realistic delivery windows for **First Class, Same Day, and Second Class** — all three show statistically significant recovery potential (p < 0.001).
+* Leave **Standard Class** promises unchanged — its A/B test showed no significant difference (p = 0.951), so it isn't part of the problem.
 
 ### Operational (Logistics Optimization)
 * Investigate Standard Class routes showing negative latency (arriving early) for potential resource reallocation to premium lanes.
@@ -201,6 +208,9 @@ jupyter notebook notebooks/sla_pyspark.ipynb
 # 6. Regenerate SQL exports + Tableau-ready data
 python python/prepare_dashboard_data.py --input "data/raw/DataCoSupplyChainDataset.csv"
 
-# 7. Open data/processed/orders_clean.csv in Tableau to rebuild the dashboard
+# 7. Run the statistically-validated A/B test across all shipping modes
+python python/ab_test_simulation.py --input "data/raw/DataCoSupplyChainDataset.csv"
+
+# 8. Open data/processed/orders_clean.csv in Tableau to rebuild the dashboard
 #    (see dashboard/DASHBOARD_GUIDE.md for the sheet-by-sheet spec)
 ```

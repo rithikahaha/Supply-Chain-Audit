@@ -1,3 +1,5 @@
-test_group,fulfillment_success_rate_pct
-Control (1-Day Promise),0.0
-Variant (4-Day Estimate),100.0
+shipping_mode,control_promise_days,variant_estimate_days,control_n,control_success_rate_pct,variant_n,variant_success_rate_pct,z_statistic,p_value,significant_at_0.05
+First Class,1.0,2,13521,0.0,14293,100.0,166.775,0.0,True
+Same Day,0.0,1,4887,51.91,4850,100.0,55.445,0.0,True
+Second Class,2.0,4,17341,20.4,17875,59.94,75.57,0.0,True
+Standard Class,4.0,4,54390,60.24,53362,60.22,-0.061,0.951273,False
