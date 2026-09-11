@@ -33,6 +33,9 @@ def load_and_clean(path: str) -> pd.DataFrame:
     df["strict_success"] = (df["Days for shipping (real)"] <= df["Days for shipment (scheduled)"]).astype(int)
     df["buffered_success"] = (df["Days for shipping (real)"] <= df["Days for shipment (scheduled)"] + 1).astype(int)
     df["order_month"] = pd.to_datetime(df["order date (DateOrders)"], errors="coerce").dt.to_period("M").astype(str)
+
+    customer_spend = df.groupby("Customer Id")["Order Item Total"].sum()
+    df["Customer Spend Tier"] = df["Customer Id"].map(customer_spend).apply(customer_segment)
     return df
 
 

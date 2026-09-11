@@ -84,9 +84,9 @@ This project is an end-to-end data audit of a global supply chain dataset (180,0
 
 An interactive Tableau dashboard built on `data/processed/orders_clean.csv` and the `sql/exports/` summaries: KPI tiles (total orders, SLA breach rate, avg latency gap), a shipping-mode success comparison, a regional breach-rate map, a monthly trend line, and the customer-segment "systemic, not selective" chart.
 
-**[View live dashboard on Tableau Public →](#)** *(link pending publish — see [dashboard/DASHBOARD_GUIDE.md](dashboard/DASHBOARD_GUIDE.md) for the build spec)*
+**[View live dashboard on Tableau Public →](https://public.tableau.com/app/profile/rithika.h8756/viz/SupplyChainSLAAudit/SupplyChainSLAAudit)**
 
-*(screenshot pending — add `dashboard/screenshot.png` and embed it here once published)*
+![Dashboard preview](dashboard/screenshot.png)
 
 ---
 
