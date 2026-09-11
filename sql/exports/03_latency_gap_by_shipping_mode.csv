@@ -1,0 +1,5 @@
+Shipping Mode,promised_days,actual_days,avg_latency_gap
+Second Class,2.0,3.99,1.99
+First Class,1.0,2.0,1.0
+Same Day,0.0,0.48,0.48
+Standard Class,4.0,4.0,-0.0

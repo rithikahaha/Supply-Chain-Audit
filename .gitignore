@@ -1,3 +1,12 @@
+# Raw / processed data (large, regenerate via python/prepare_dashboard_data.py)
+data/raw/*.csv
+data/processed/*.csv
+
+# Tableau local cache (extracts are shared via .twbx, not .tds/.tde caches)
+*.tde
+*.hyper
+Tableau_temp*/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

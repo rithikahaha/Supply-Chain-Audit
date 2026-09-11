@@ -1,0 +1,3 @@
+test_group,fulfillment_success_rate_pct
+Control (1-Day Promise),0.0
+Variant (4-Day Estimate),100.0

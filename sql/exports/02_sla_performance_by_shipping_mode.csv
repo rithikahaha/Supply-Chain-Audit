@@ -1,0 +1,5 @@
+Shipping Mode,order_volume,strict_success_rate,buffered_success_rate
+Standard Class,107752,60.23,79.82
+Second Class,35216,20.27,40.33
+First Class,27814,0.0,100.0
+Same Day,9737,52.17,100.0

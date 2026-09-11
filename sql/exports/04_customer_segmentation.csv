@@ -1,0 +1,4 @@
+customer_segment,user_count,avg_failure_pct
+Standard (Mid Spend),4230,55.88
+Casual (Low Spend),3878,54.79
+Priority (High Spend),12544,54.55
