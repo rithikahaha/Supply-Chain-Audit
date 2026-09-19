@@ -8,6 +8,10 @@
 
 ---
 
+## So what should the business do?
+
+Reset the First Class delivery promise from 1 day to 2, and Second Class from 2 days to 4. Leave Standard Class alone, it was already well calibrated. Fix operations, not account management: the failure rate is the same across every customer spend tier (about 54%), so high-value customers are not being singled out. The improvement comes from a simulated A/B test, so confirm it with a real pilot before committing.
+
 ## Quick Stats
 
 | Metric | Value |
