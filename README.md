@@ -10,7 +10,7 @@
 
 ## So what should the business do?
 
-Shipping promised delivery in 1 day (First Class) or 2 days (Second Class), but orders actually took about 2 and 4 days, so every First Class order arrived late. The fix is to promise 2 and 4 days instead: in a simulation that removed every First Class miss and halved the Second Class misses, and Standard shipping needs no change because it was already accurate. Late orders hit big and small spenders equally, so this is a shipping-operations problem, and a real pilot should confirm it first.
+Premium shipping promised 1-day and 2-day delivery but really took about 2 and 4 days, so most premium orders were late. Promising 2 and 4 days instead would have cut the late orders sharply in a simulation. A real pilot should confirm it first.
 
 ## Quick Stats
 
