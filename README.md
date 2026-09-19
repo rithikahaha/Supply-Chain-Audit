@@ -10,7 +10,7 @@
 
 ## So what should the business do?
 
-Reset the First Class delivery promise from 1 day to 2, and Second Class from 2 days to 4. Leave Standard Class alone, it was already well calibrated. Fix operations, not account management: the failure rate is the same across every customer spend tier (about 54%), so high-value customers are not being singled out. The improvement comes from a simulated A/B test, so confirm it with a real pilot before committing.
+Shipping promised delivery in 1 day (First Class) or 2 days (Second Class), but orders actually took about 2 and 4 days, so every First Class order arrived late. The fix is to promise 2 and 4 days instead: in a simulation that removed every First Class miss and halved the Second Class misses, and Standard shipping needs no change because it was already accurate. Late orders hit big and small spenders equally, so this is a shipping-operations problem, and a real pilot should confirm it first.
 
 ## Quick Stats
 
