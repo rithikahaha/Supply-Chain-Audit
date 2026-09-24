@@ -4,7 +4,7 @@
 
 ![Status](https://img.shields.io/badge/status-complete-brightgreen) ![Records](https://img.shields.io/badge/records-180%2C519-blue) ![SLA Recovery](https://img.shields.io/badge/simulated%20SLA%20recovery-0%25%20%E2%86%92%20100%25-orange)
 
-[Dashboard](#tableau-dashboard) | [Notebook](notebooks/supply-chain-audit.ipynb) | [SQL Queries](sql/) | [PySpark Extension](notebooks/sla_pyspark.ipynb) | [Data Source](https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis)
+[Dashboard](#tableau-dashboard) | [Project Guide](docs/PROJECT_GUIDE.md) | [Notebook](notebooks/supply-chain-audit.ipynb) | [SQL Queries](sql/) | [PySpark Extension](notebooks/sla_pyspark.ipynb) | [Data Source](https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis)
 
 ---
 
@@ -16,9 +16,9 @@ Premium shipping promised 1-day and 2-day delivery but really took about 2 and 4
 
 | Metric | Value |
 | :--- | :--- |
-| Records audited | 180,519 orders |
-| First Class SLA breach rate | ~95% (strict) |
-| Systemic latency gap (First/Second Class) | ~2 days |
+| Records audited | 180,519 order lines (65,752 unique orders) |
+| First Class orders flagged late | 95.3% (dataset's late-delivery flag) |
+| Average delay vs. promise | First Class +1.0 day, Second Class +2.0 days |
 | Simulated recovery (realistic estimate) | 0% → 100% success (First Class, p < 0.001) |
 | Failure rate across customer spend tiers | ~55% uniform (systemic, not selective) |
 | Validated across | Pandas/SQLite, PySpark, Snowflake |
@@ -26,7 +26,7 @@ Premium shipping promised 1-day and 2-day delivery but really took about 2 and 4
 ---
 
 ## Executive Summary
-Premium shipping tiers exhibit a ~95% SLA breach rate, driven by a consistent ~2-day fulfillment delay. This analysis demonstrates that by aligning delivery expectations with actual logistics velocity via a Dynamic Delivery Estimate (DDE), fulfillment success can be statistically significantly improved for three of four shipping tiers (p < 0.001) without increasing operational overhead — Standard Class is already well-calibrated and needs no change.
+Premium shipping tiers miss their promised delivery windows: First Class orders arrive 1 day late on average (95.3% flagged late) and Second Class orders arrive about 2 days late. This analysis demonstrates that by aligning delivery expectations with actual logistics velocity via a Dynamic Delivery Estimate (DDE), fulfillment success can be statistically significantly improved for three of four shipping tiers (p < 0.001) without increasing operational overhead — Standard Class is already well-calibrated and needs no change.
 
 ---
 
@@ -63,6 +63,8 @@ Supply-Chain-Audit/
 │   └── exports/          # CSV outputs of each query, committed (small, pre-aggregated)
 ├── dashboard/
 │   └── DASHBOARD_GUIDE.md  # sheet-by-sheet Tableau build spec
+├── docs/
+│   └── PROJECT_GUIDE.md    # plain-English walkthrough of the whole project
 ├── requirements.txt
 └── README.md
 ```
@@ -77,11 +79,14 @@ This project is an end-to-end data audit of a global supply chain dataset (180,0
 ---
 
 ## Core Findings
-| Shipping Tier | Promised Days | Actual Days | Latency Gap | SLA Success |
+| Shipping Tier | Promised Days | Actual Days | Latency Gap | On-Time (strict) |
 | :--- | :---: | :---: | :---: | :---: |
-| **First Class** | 1 | 3.01 | **+2.01 Days Late** | 4.7% |
-| **Second Class** | 2 | 3.12 | **+1.12 Days Late** | 24.2% |
-| **Standard Class**| 4 | 3.85 | **-0.15 Days (Early)** | 98.2% |
+| **First Class** | 1 | 2.00 | **+1.00 day late** | 0.0% |
+| **Second Class** | 2 | 3.99 | **+1.99 days late** | 20.3% |
+| **Same Day** | 0 | 0.48 | **+0.48 days late** | 52.2% |
+| **Standard Class**| 4 | 4.00 | **0.00 (on promise)** | 60.2% |
+
+Full walkthrough in [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md).
 
 ---
 
@@ -123,7 +128,7 @@ Benchmarked success using Strict Success (on-time) vs. Buffered Success (1-day g
 ### Stage 3: Fulfillment Funnel (The Latency Gap)
 Modeled delivery as a funnel to quantify delay:
 * **Definition:** Latency Gap = Actual Days − Promised Days.
-* **Insight:** A consistent ~2.01-day delay suggested a systemic bottleneck rather than random variation.
+* **Insight:** Second Class runs almost exactly 2 days over its promise and First Class exactly 1 day over, which points to a fixed process gap rather than random variation.
 
 ### Stage 4: Customer Segmentation (Value at Risk)
 Linked failures to customer spending tiers using SQL.
